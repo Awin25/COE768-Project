@@ -9,10 +9,10 @@ C Content Data
 O List of On-Line Registered Content A Acknowledgement
 E Error
 
-All packets have a 'type' field (1 Byte) and data fields (<=100 Bytes)
+All packetSearch have a 'type' field (1 Byte) and data fields (<=100 Bytes)
 */
 
-// UNILATERAL PACKETS 
+// UNILATERAL packetSearch 
 struct pdu {
   char type;
   char data[100];
@@ -48,7 +48,7 @@ struct pduA {
   char peerName[10];
 };
 
-// BILATERAL PACKETS
+// BILATERAL packetSearch
 struct pduS {
 	char type;
   char peerName[10];
@@ -59,10 +59,10 @@ struct pduO {
   /* 
   Each content name is 10 char max which means you can only 
   have 10 pieces of content at a given time assuming you don't 
-  send multiple 'O' type packets
+  send multiple contentList type packetSearch
   */
 	char type;
-  char contentList[100]; 
+  char contentInfos[100]; 
 };
 
 struct pduE {
