@@ -16,7 +16,7 @@
 #define	BUFLEN      3000     // Max bytes per packet
 
 // Globals
-char nameOfPeer[10];                          // Holds the user name, same name per instance of client
+char peerName[10];                          // Holds the user name, same name per instance of client
 char contentNamesArr[5][10];               // Creates an array of strings that represent the name of the local content that has been registered
                                             // via the index server. Can store 5 elements of 10 bytes per content (9 + null terminating char)
 char localContentPort[5][6];                // Stores the port number associated with each piece of locally registered content
@@ -156,29 +156,29 @@ void registerContent(char contentName[]){
     // Build R type PDU to send to index server
     memset(&packetR, '\0', sizeof(packetR));          // Sets terminating characters to all elements
     memcpy(packetR.contentName, contentName, 10);
-    memcpy(packetR.nameOfPeer, nameOfPeer, 10);
+    memcpy(packetR.peerName, peerName, 10);
     memcpy(packetR.host, tcp_host, sizeof(tcp_host));
     memcpy(packetR.port, tcp_port, sizeof(tcp_port));
     packetR.type = 'R';
 
     fprintf(stderr, "Built the following R PDU packet:\n");
     fprintf(stderr, "    Type: %c\n", packetR.type);
-    fprintf(stderr, "    Peer Name: %s\n", packetR.nameOfPeer);
+    fprintf(stderr, "    Peer Name: %s\n", packetR.peerName);
     fprintf(stderr, "    Content Name: %s\n", packetR.contentName);
     fprintf(stderr, "    Host: %s\n", packetR.host);
     fprintf(stderr, "    Port: %s\n", packetR.port);
     fprintf(stderr, "\n");
 
     // Parse the pduR type into default pdu type for transmission
-    // sendPacket.data = [nameOfPeer]+[contentName]+[host]+[port]
+    // sendPacket.data = [peerName]+[contentName]+[host]+[port]
     memset(&sendPacket, '\0', sizeof(sendPacket));          // Sets terminating characters to all elements
     int dataOffset = 0;
 
     sendPacket.type = packetR.type;
     memcpy(sendPacket.data + dataOffset, 
-            packetR.nameOfPeer, 
-            sizeof(packetR.nameOfPeer));
-    dataOffset += sizeof(packetR.nameOfPeer);
+            packetR.peerName, 
+            sizeof(packetR.peerName));
+    dataOffset += sizeof(packetR.peerName);
     memcpy(sendPacket.data + dataOffset, 
             packetR.contentName,
             sizeof(packetR.contentName));
@@ -194,7 +194,7 @@ void registerContent(char contentName[]){
     fprintf(stderr, "Parsed the R type PDU into the following general PDU:\n");
     fprintf(stderr, "    Type: %c\n", sendPacket.type);
     fprintf(stderr, "    Data:\n");
-    int m = 0;
+     m = 0;
     while(m <= sizeof(sendPacket.data)-1){
         fprintf(stderr, "%d: %c\n", m, sendPacket.data[m]);
         m++;
@@ -235,13 +235,13 @@ void registerContent(char contentName[]){
             // Copies incoming packet into a PDU-A struct
             packetA.type = incomingData[0];
             while(incomingData[i] != '\0'){ 
-                packetA.nameOfPeer[i-1] = incomingData[i];
+                packetA.peerName[i-1] = incomingData[i];
                 i++;
             }
 
             // Output to user
             printf("The following content has been successfully registered:\n");
-            printf("    Peer Name: %s\n", packetA.nameOfPeer);
+            printf("    Peer Name: %s\n", packetA.peerName);
             printf("    Content Name: %s\n", packetR.contentName);
             printf("    Host: %s\n", packetR.host);
             printf("    Port: %s\n", packetR.port);
@@ -332,19 +332,19 @@ void deregisterContent(char contentName[], int q){
     //  Build the T type PDU
     memset(&packetT, '\0', sizeof(packetT));          // Sets terminating characters to all elements (initializer)
     packetT.type = 'T';
-    memcpy(packetT.nameOfPeer, nameOfPeer, sizeof(packetT.nameOfPeer));
+    memcpy(packetT.peerName, peerName, sizeof(packetT.peerName));
     memcpy(packetT.contentName, contentName, sizeof(packetT.contentName));
 
     // Parse the T type into a general PDU for transmission
-    // sendPacket.data = [nameOfPeer]+[contentName]
+    // sendPacket.data = [peerName]+[contentName]
     memset(&sendPacket, '\0', sizeof(sendPacket));          // Sets terminating characters to all elements (initializer)
     int dataOffset = 0;
 
     sendPacket.type = packetT.type;
     memcpy(sendPacket.data + dataOffset, 
-            packetT.nameOfPeer, 
-            sizeof(packetT.nameOfPeer));
-    dataOffset += sizeof(packetT.nameOfPeer);
+            packetT.peerName, 
+            sizeof(packetT.peerName));
+    dataOffset += sizeof(packetT.peerName);
     memcpy(sendPacket.data + dataOffset, 
             packetT.contentName,
             sizeof(packetT.contentName));
@@ -425,19 +425,19 @@ void requestContent(char contentName[]){
     // Build the S type packet to send to the index server
     memset(&sTypePacket, '\0', sizeof(sTypePacket));          // Sets terminating characters to all elements
     sTypePacket.type = 'S';
-    memcpy(sTypePacket.nameOfPeer, nameOfPeer, sizeof(sTypePacket.nameOfPeer));
+    memcpy(sTypePacket.peerName, peerName, sizeof(sTypePacket.peerName));
     memcpy(sTypePacket.contentNameOrAddress, contentName, strlen(contentName));
 
     // Parse the S type into a general PDU for transmission
-    // sendPacket.data = [nameOfPeer]+[contentName]
+    // sendPacket.data = [peerName]+[contentName]
     memset(&sendPacket, '\0', sizeof(sendPacket));          // Sets terminating characters to all elements
     int dataOffset = 0;
 
     sendPacket.type = sTypePacket.type;
     memcpy(sendPacket.data + dataOffset, 
-            sTypePacket.nameOfPeer, 
-            sizeof(sTypePacket.nameOfPeer));
-    dataOffset += sizeof(sTypePacket.nameOfPeer);
+            sTypePacket.peerName, 
+            sizeof(sTypePacket.peerName));
+    dataOffset += sizeof(sTypePacket.peerName);
     memcpy(sendPacket.data + dataOffset, 
             sTypePacket.contentNameOrAddress,
             sizeof(sTypePacket.contentNameOrAddress));
@@ -446,10 +446,10 @@ void requestContent(char contentName[]){
     fprintf(stderr, "Parsed the S type PDU into the following general PDU:\n");
     fprintf(stderr, "    Type: %c\n", sendPacket.type);
     fprintf(stderr, "    Data:\n");
-    int m = 0;
-    while( m <= sizeof(sendPacket.data)-1){
-        fprintf(stderr, "%d: %c\n", m, sendPacket.data[m]);
-        m++;
+    int ind = 0;
+    while( ind <= sizeof(sendPacket.data)-1){
+        fprintf(stderr, "%d: %c\n", ind, sendPacket.data[ind]);
+        ind++;
     }
     fprintf(stderr, "\n");
 
@@ -517,19 +517,19 @@ void downloadContent(char contentName[], char address[]){
     // Construct a D-PDU to send to the content server
     memset(&packetD, '\0', sizeof(packetD));          // Sets terminating characters to all elements
     packetD.type = 'D';
-    memcpy(packetD.nameOfPeer, nameOfPeer, 10);
+    memcpy(packetD.peerName, peerName, 10);
     memcpy(packetD.content, contentName, 90);
 
     // Parse the D-PDU type into a general PDU for transmission
-    // sendPacket.data = [nameOfPeer]+[contentName]
+    // sendPacket.data = [peerName]+[contentName]
     memset(&sendPacket, '\0', sizeof(sendPacket));          // Sets terminating characters to all elements
     int dataOffset = 0;
 
     sendPacket.type = packetD.type;
     memcpy(sendPacket.data + dataOffset, 
-            packetD.nameOfPeer, 
-            sizeof(packetD.nameOfPeer));
-    dataOffset += sizeof(packetD.nameOfPeer);
+            packetD.peerName, 
+            sizeof(packetD.peerName));
+    dataOffset += sizeof(packetD.peerName);
     memcpy(sendPacket.data + dataOffset, 
             packetD.content,
             sizeof(packetD.content));
@@ -641,13 +641,13 @@ int main(int argc, char **argv){
     
     
     printf("Enter your username:\n");
-    while(read (0, nameOfPeer, sizeof(nameOfPeer)) > 10){
+    while(read (0, peerName, sizeof(peerName)) > 10){
         printf("User name exceeded maximum length. Please ensure that username is 9 characters or less:\n");
     }
     
     // Change last char to a null termination instead of newline, for purely aesthetic formatting purposes only
-    nameOfPeer[strlen(nameOfPeer)-1] = '\0'; 
-    printf("Welcome %s! ", nameOfPeer);
+    peerName[strlen(peerName)-1] = '\0'; 
+    printf("Welcome %s! ", peerName);
 
     // Main control loop
     char            taskOption[2];          // Indicates the task that the user wants to execute
@@ -711,7 +711,7 @@ int main(int argc, char **argv){
                         while(j < sizeof(incomingData)){
                             if (j < 10){
                                 //covers index scenarios from 1 to 10
-                                sTypePacket.nameOfPeer[j] = incomingData[j+1]; 
+                                sTypePacket.peerName[j] = incomingData[j+1]; 
                             }
                             sTypePacket.contentNameOrAddress[j] = incomingData[j+11]; //covers index scenarios from 11 to 100
                             j++;
@@ -720,7 +720,7 @@ int main(int argc, char **argv){
                         // Info logging purposes only
                         fprintf(stderr, "Parsed the incoming message into the following S-PDU:\n");
                         fprintf(stderr, "   Type: %c\n", sTypePacket.type);
-                        fprintf(stderr, "   Peer Name: %s\n", sTypePacket.nameOfPeer);
+                        fprintf(stderr, "   Peer Name: %s\n", sTypePacket.peerName);
                         fprintf(stderr, "   Address: %s\n", sTypePacket.contentNameOrAddress);
 
                         // Handles requesting a download from peer with address [sTypePacket.contentNameOrAddress] 
