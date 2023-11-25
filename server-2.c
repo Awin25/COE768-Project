@@ -120,7 +120,7 @@ bool  distinctContentName = true;
 	}
     /* Complete the socket structure */
     memset(&sin, 0, sizeof(sin));
-    sin.sin_family = AF_INET;         //it's an IPv4 address
+    sin.sin_family = AF_INET;         // IPv4 address
     sin.sin_addr.s_addr = INADDR_ANY; //wildcard IP address
     sin.sin_port = htons(port);       //bind to this port number
                                                                                                  
@@ -146,14 +146,14 @@ while (true) {
         // Peer Server Content Registration
         memset(&packetRegister, '\0', sizeof(packetRegister));
  i = 0;
-while (i < 10) {
-    packetRegister.peerName[i] = recPacket.data[i]; // 0:9
-    packetRegister.contentName[i] = recPacket.data[i + 10]; // 10:19
+while (i < maxSize) {
+    packetRegister.peerName[i] = recPacket.data[i]; 
+    packetRegister.contentName[i] = recPacket.data[i + 10]; 
     if (i < 5) {
-        packetRegister.host[i] = recPacket.data[i + 20]; // 20:25
+        packetRegister.host[i] = recPacket.data[i + 20]; 
     }
     if (i < 6) {
-        packetRegister.port[i] = recPacket.data[i + 25]; // 26:31
+        packetRegister.port[i] = recPacket.data[i + 25];
     }
     i++;
 }
@@ -210,13 +210,13 @@ while (i < headRegister) {
 
             // Send Ack Packet
             sendToPacket.type = Ack;
-            memset(sendToPacket.data, '\0', 100);
+            memset(sendToPacket.data, '\0', maxDataSize);
             strcpy(sendToPacket.data, packetRegister.peerName);
             fprintf(stderr, "ACK\n");
         } else {
             // Send Err Packet
             sendToPacket.type = Error;
-            memset(sendToPacket.data, '\0', 100);
+            memset(sendToPacket.data, '\0', maxDataSize);
             if (FlagE == 2) {
                 strcpy(sendToPacket.data, "PeerName exists in registration");
             } else if (FlagE == 1) {
@@ -236,7 +236,7 @@ while (i < headRegister) {
           //Localize Content
           memset(&packetSearch,'\0', sizeof(packetSearch));
  i = 0;
-while (i < 10) {
+while (i < maxSize) {
     packetSearch.peerName[i] = recPacket.data[i]; // 0:9
     packetSearch.contentNameOrAddress[i] = recPacket.data[i + 10]; // 10:19
     i++;
@@ -276,7 +276,7 @@ while (i < tailRegister) {
 
             // TODO: Send S Packet with host and port
             sendToPacket.type = contentSearch;
-            memset(sendToPacket.data, '\0', 100);
+            memset(sendToPacket.data, '\0', maxDataSize);
             memset(tcp_ip_addr, '\0',sizeof(tcp_ip_addr));
             memset(tcp_port, '\0', sizeof(tcp_port));
             strcpy(sendToPacket.data,contentTemporaryInfo.peerName);
@@ -288,7 +288,7 @@ while (i < tailRegister) {
           else {
             // Send Error Message
             sendToPacket.type = Error;
-            memset(sendToPacket.data, '\0', 100);
+            memset(sendToPacket.data, '\0', maxDataSize);
 					  strcpy(sendToPacket.data,"Content Does Not Exist");
           }
           sendto(s, &sendToPacket, lengthBuffer, 0,(struct sockaddr *)&fsin, sizeof(fsin));
@@ -297,11 +297,11 @@ while (i < tailRegister) {
         else if (recPacket.type == contentList) {
           fprintf(stderr, "packet O received \n");
           // We don't care about the data in this one
-          memset(sendToPacket.data, '\0', 100);
+          memset(sendToPacket.data, '\0', maxDataSize);
           
 i = 0;
 while (i < headRegister) {
-    memcpy(sendToPacket.data + i * 10, registeredFiles[i], 10);
+    memcpy(sendToPacket.data + i * 10, registeredFiles[i], maxSize);
     fprintf(stderr, "Content on Index Server: %s\n", sendToPacket.data + i * 10);
     i++;
 }
@@ -313,7 +313,7 @@ while (i < headRegister) {
           // Localize Content
           memset(&packetDeregisterT,'\0', sizeof(packetDeregisterT));
 i = 0;
-while (i < 10) {
+while (i < maxSize) {
     packetDeregisterT.peerName[i] = recPacket.data[i]; // 0:9
     packetDeregisterT.contentName[i] = recPacket.data[i + 10]; // 10:19
     i++;
@@ -364,12 +364,12 @@ while (i < headRegister) {
             }
 
             sendToPacket.type = Ack;
-            memset(sendToPacket.data, '\0', 10);
+            memset(sendToPacket.data, '\0',maxSize);
             strcpy(sendToPacket.data, packetDeregisterT.peerName);
           }
           else {
             sendToPacket.type = Error;
-            memset(sendToPacket.data, '\0', 10);
+            memset(sendToPacket.data, '\0', maxSize);
             strcpy(sendToPacket.data, "File Removal Error");
           }
           sendto(s, &sendToPacket, lengthBuffer, 0,(struct sockaddr *)&fsin, sizeof(fsin));
